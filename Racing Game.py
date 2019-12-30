@@ -8,8 +8,8 @@ img_folder = path.join(path.dirname(__file__), 'images')
 sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 #參數規格
-WIDTH = 480
-HEIGHT = 600
+WIDTH = 500
+HEIGHT = 700
 FPS = 60
 POWERUP_TIME = 5000
 BAR_LENGTH = 100
@@ -38,7 +38,7 @@ clock = pygame.time.Clock()     ## For syncing the FPS
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(player_img, (35,65))
+        self.image = pygame.transform.scale(player_img_01, (20,40))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 20
@@ -78,14 +78,24 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.top < HEIGHT *0.75:
             self.rect.top = HEIGHT *0.75
 
+class Player2(Player):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.scale(player_img_02, (35,65))
+
 ###############################
 # 載入圖片
-player_img = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
-
+player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
+player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
+edge_line_left = pygame.image.load(path.join(img_folder, 'edge line_left.png')).convert_alpha()
+edge_line_right = pygame.image.load(path.join(img_folder, 'edge line_right.png')).convert_alpha()
 ###############################
 ## Game loop
 running = True
 menu_display = True
+
+lineY = 0
+lineShift = edge_line_left.get_height() - HEIGHT
 
 while running:
     # 1.遊戲主畫面
@@ -113,7 +123,11 @@ while running:
     # 3.精靈更新
     all_sprites.update()
 
+    #畫面繪製
     screen.fill(BLACK)
+    lineY = ( lineY + 2 ) % lineShift - lineShift
+    screen.blit(edge_line_left, (100, lineY))
+    screen.blit(edge_line_right, (WIDTH - 90, lineY))
 
     all_sprites.draw(screen)
     pygame.display.flip() 
