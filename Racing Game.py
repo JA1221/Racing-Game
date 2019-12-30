@@ -11,9 +11,8 @@ sound_folder = path.join(path.dirname(__file__), 'sounds')
 WIDTH = 500
 HEIGHT = 700
 FPS = 60
-POWERUP_TIME = 5000
-BAR_LENGTH = 100
-BAR_HEIGHT = 15
+EDGE_LEFT = 70
+EDGE_RIGHT = WIDTH - EDGE_LEFT - 10
 
 #顏色
 WHITE = (255, 255, 255)
@@ -68,10 +67,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speedy
 
         # 保持 左右界線
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        elif self.rect.left < 0:
-            self.rect.left = 0
+        if self.rect.right > EDGE_RIGHT:
+            self.rect.right = EDGE_RIGHT
+        elif self.rect.left < EDGE_LEFT + 10:
+            self.rect.left = EDGE_LEFT + 10
 
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
@@ -126,8 +125,8 @@ while running:
     #畫面繪製
     screen.fill(BLACK)
     lineY = ( lineY + 2 ) % lineShift - lineShift
-    screen.blit(edge_line_left, (100, lineY))
-    screen.blit(edge_line_right, (WIDTH - 90, lineY))
+    screen.blit(edge_line_left, (EDGE_LEFT, lineY))
+    screen.blit(edge_line_right, (EDGE_RIGHT, lineY))
 
     all_sprites.draw(screen)
     pygame.display.flip() 
