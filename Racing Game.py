@@ -38,9 +38,9 @@ clock = pygame.time.Clock()     ## For syncing the FPS
 # 玩家
 class Player(pygame.sprite.Sprite):
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
         self.image = pygame.transform.scale(player_img_01, (20,40))
-        # self.image = pygame.transform.scale(random.choice(car_img), (20,40))
+        # self.image = pygame.transform.scale(random.choice(car_imgs), (20,40))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 20
@@ -92,8 +92,8 @@ player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alp
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
 
 #cars & motos
-car_img = []
-moto_img = []
+car_imgs = []
+moto_imgs = []
 vehicle_color = ['black', 'blue', 'green', 'red', 'yellow']
 
 for color in vehicle_color:
@@ -101,11 +101,11 @@ for color in vehicle_color:
     for i in range(1,6):
         filename = 'car_{}_{}.png'.format(color, i)
         img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
-        car_img.append(img)
+        car_imgs.append(img)
     #moto
     filename = 'motorcycle_{}.png'.format(color)
     img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
-    moto_img.append(img)
+    moto_imgs.append(img)
 
 #road
 road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
