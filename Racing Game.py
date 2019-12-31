@@ -8,11 +8,11 @@ img_folder = path.join(path.dirname(__file__), 'images')
 sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 #參數規格
-WIDTH = 500
+WIDTH = 600
 HEIGHT = 700
 FPS = 60
 EDGE_LEFT = 70
-EDGE_RIGHT = WIDTH - EDGE_LEFT - 10
+EDGE_RIGHT = EDGE_LEFT + 260
 
 #顏色
 WHITE = (255, 255, 255)
@@ -21,6 +21,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+
+GREEN_Grassland = (27,125,67)
 
 ###############################
 
@@ -74,8 +76,8 @@ class Player(pygame.sprite.Sprite):
 
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
-        elif self.rect.top < HEIGHT *0.75:
-            self.rect.top = HEIGHT *0.75
+        elif self.rect.top < HEIGHT *0.7:
+            self.rect.top = HEIGHT *0.7
 
 class Player2(Player):
     def __init__(self):
@@ -86,15 +88,16 @@ class Player2(Player):
 # 載入圖片
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
-edge_line_left = pygame.image.load(path.join(img_folder, 'edge line_left.png')).convert_alpha()
-edge_line_right = pygame.image.load(path.join(img_folder, 'edge line_right.png')).convert_alpha()
+
+#road
+road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
 ###############################
 ## Game loop
 running = True
 menu_display = True
 
 lineY = 0
-lineShift = edge_line_left.get_height() - HEIGHT
+lineShift = road.get_height() - HEIGHT
 
 while running:
     # 1.遊戲主畫面
@@ -114,19 +117,19 @@ while running:
             running = False
 
         keyinput = pygame.key.get_pressed()
-        print(keyinput)
         
         # ESC 離開  
         if keyinput[pygame.K_ESCAPE]:
             running = False
+
     # 3.精靈更新
     all_sprites.update()
 
-    #畫面繪製
-    screen.fill(BLACK)
-    lineY = ( lineY + 2 ) % lineShift - lineShift
-    screen.blit(edge_line_left, (EDGE_LEFT, lineY))
-    screen.blit(edge_line_right, (EDGE_RIGHT, lineY))
+    # 4.畫面繪製
+    screen.fill(GREEN_Grassland)
+
+    lineY = ( lineY + 3 ) % lineShift - lineShift
+    screen.blit(road, (EDGE_LEFT, lineY))
 
     all_sprites.draw(screen)
     pygame.display.flip() 
