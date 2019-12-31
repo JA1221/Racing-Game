@@ -10,6 +10,7 @@ sound_folder = path.join(path.dirname(__file__), 'sounds')
 #參數規格
 WIDTH = 600
 HEIGHT = 700
+SPEED = 3
 FPS = 60
 EDGE_LEFT = 70
 EDGE_RIGHT = EDGE_LEFT + 260
@@ -85,6 +86,22 @@ class Player2(Player):
         super().__init__()
         self.image = pygame.transform.scale(player_img_02, (35,65))
 
+class Rock(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.img_orig = random.choice(rock_imgs)
+        self.image = pygame.transform.rotozoom(self.img_orig, random.randint(0,360), random.uniform(0.2,0.7))
+        self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width *.90 / 2)
+        # 生成位置
+        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+        self.rect.y = random.randrange(-150, -100)
+
+    def update(self):
+        self.rect.y += SPEED
+
+        if self.rect.top > HEIGHT:
+            self.__init__()
 
 ###############################
 # 載入圖片
@@ -111,11 +128,11 @@ for color in vehicle_color:
 road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
 
 #rock
-rock_img = []
+rock_imgs = []
 for i in range(1,4):
     filename = 'rock{}.png'.format(i)
     img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
-    rock_img.append(img)
+    rock_imgs.append(img)
 
 #cones
 cones_img = pygame.image.load(path.join(img_folder, 'cones.png')).convert_alpha()
@@ -137,6 +154,8 @@ while running:
         # 建立玩家
         player = Player()
         all_sprites.add(player)
+        rock = Rock()
+        all_sprites.add(rock)
 
     # 2.幀數控制 輸入偵測
     clock.tick(FPS)
@@ -157,7 +176,7 @@ while running:
     # 4.畫面繪製
     screen.fill(GREEN_Grassland)
 
-    lineY = ( lineY + 3 ) % lineShift - lineShift
+    lineY = ( lineY + SPEED ) % lineShift - lineShift
     screen.blit(road, (EDGE_LEFT, lineY))
 
     all_sprites.draw(screen)
