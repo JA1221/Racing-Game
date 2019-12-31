@@ -85,23 +85,41 @@ class Player2(Player):
         super().__init__()
         self.image = pygame.transform.scale(player_img_02, (35,65))
 
+
 ###############################
 # 載入圖片
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
 
-#cars
+#cars & motos
 car_img = []
-car_color = ['black', 'blue', 'green', 'red', 'yellow']
+moto_img = []
+vehicle_color = ['black', 'blue', 'green', 'red', 'yellow']
 
-for color in car_color:
+for color in vehicle_color:
+    #car
     for i in range(1,6):
         filename = 'car_{}_{}.png'.format(color, i)
         img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
         car_img.append(img)
+    #moto
+    filename = 'motorcycle_{}.png'.format(color)
+    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    moto_img.append(img)
 
 #road
 road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
+
+#rock
+rock_img = []
+for i in range(1,4):
+    filename = 'rock{}.png'.format(i)
+    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    rock_img.append(img)
+
+#cones
+cones_img = pygame.image.load(path.join(img_folder, 'cones.png')).convert_alpha()
+
 ###############################
 ## Game loop
 running = True
