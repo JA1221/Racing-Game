@@ -128,7 +128,6 @@ class Moto(pygame.sprite.Sprite):
         self.img_orig = random.choice(moto_imgs)
         self.image = pygame.transform.scale(self.img_orig, (20,40))
         self.rect = self.image.get_rect()
-        self.radius = int(self.rect.width *.90 / 2)
         # 移動變數
         self.movex_delay = 1000
         self.last_update = pygame.time.get_ticks()
@@ -158,9 +157,31 @@ class Moto(pygame.sprite.Sprite):
 
         # 移到最頂
         if self.rect.top > HEIGHT:
-            self.__init__()
             self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
             self.rect.y = random.randrange(-150, -100)
+
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = explosion_imgs[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0 
+        self.last_update = pygame.time.get_ticks()
+        self.frame_delay = 75 # 每張圖片間距時間
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_delay:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(explosion_imgs):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = explosion_imgs[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
 
 ###############################
 # add class
@@ -213,6 +234,14 @@ for i in range(1,4):
 #cones
 cones_img = pygame.image.load(path.join(img_folder, 'cones.png')).convert_alpha()
 
+# Explosion
+explosion_imgs = []
+for i in range(8):
+    filename = 'Explosion0{}.png'.format(i)
+    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    img = pygame.transform.scale(img, (50,50))
+    explosion_imgs.append(img)
+
 ###############################
 ## Game loop
 running = True
@@ -237,6 +266,8 @@ while running:
 
         # 建立障礙
         newRock()
+        newRock()
+        newRock()
         newMoto()
         newCones()
 
@@ -255,6 +286,23 @@ while running:
 
     # 3.精靈更新
     all_sprites.update()
+
+    # 5.偵測碰撞
+    hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
+    for hit in hits:
+        expl = Explosion(hit.rect.center)
+        all_sprites.add(expl)
+        expl = Explosion(player.rect.center)
+        all_sprites.add(expl)
+        newRock()
+
+    hits = pygame.sprite.spritecollide(player, moto_group, True)
+    for hit in hits:
+        expl = Explosion(hit.rect.center)
+        all_sprites.add(expl)
+        expl = Explosion(player.rect.center)
+        all_sprites.add(expl)
+        newMoto()
 
     # 4.畫面繪製
     screen.fill(GREEN_Grassland)
