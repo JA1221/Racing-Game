@@ -49,6 +49,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0 
         self.speedy = 0
+        self.move_speed = 3
 
         self.lives = 3
         self.hidden = False
@@ -71,13 +72,13 @@ class Player(pygame.sprite.Sprite):
         # 偵測方向鍵
         keystate = pygame.key.get_pressed()     
         if keystate[pygame.K_LEFT]:
-            self.speedx = -5
+            self.speedx = -self.move_speed
         if keystate[pygame.K_RIGHT]:
-            self.speedx = 5
+            self.speedx = self.move_speed
         if keystate[pygame.K_UP]:
-            self.speedy = -5
+            self.speedy = -self.move_speed
         if keystate[pygame.K_DOWN]:
-            self.speedy = 5
+            self.speedy = self.move_speed
 
         # 移動
         self.rect.x += self.speedx
