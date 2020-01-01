@@ -14,6 +14,8 @@ SPEED = 3
 FPS = 100
 EDGE_LEFT = 70
 EDGE_RIGHT = EDGE_LEFT + 260
+randomY_min = -400
+randomY_max = -50
 
 #顏色
 WHITE = (255, 255, 255)
@@ -114,15 +116,15 @@ class Rock(pygame.sprite.Sprite):
         self.radius = int(self.rect.width *.90 / 2)
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-200, -100)
+        self.rect.y = random.randrange(randomY_min, randomY_max)
 
     def update(self):
         self.rect.y += SPEED
 
-        # 移到最頂
+        # 超出底部 移到最頂
         if self.rect.top > HEIGHT:
             self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(-200, -100)
+            self.rect.y = random.randrange(randomY_min, randomY_max)
 
 class Cones(pygame.sprite.Sprite):
     def __init__(self):
@@ -130,16 +132,30 @@ class Cones(pygame.sprite.Sprite):
         self.image = pygame.transform.rotozoom(cones_img, random.randint(0,360), 0.4)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *.90 / 2)
+        self.speedy = SPEED
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-200, -100)
+        self.rect.y = random.randrange(randomY_min, randomY_max)
+        # 碰撞
+        self.hited = False
+        self.hit_timer = pygame.time.get_ticks()
 
     def update(self):
-        self.rect.y += SPEED
+        self.rect.y += self.speedy
 
+        if self.hit and pygame.time.get_ticks() - self.hit_timer > 500:
+            self.hited = False
+            self.speedy = SPEED
+
+        # 超出底部 移到最頂
         if self.rect.top > HEIGHT:
             self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(-200, -100)
+            self.rect.y = random.randrange(randomY_min, randomY_max)
+
+    def hit(self):
+        self.hited = True
+        self.hit_timer = pygame.time.get_ticks()
+        self.speedy = -1
 
 class Moto(pygame.sprite.Sprite):
     def __init__(self):
@@ -155,7 +171,7 @@ class Moto(pygame.sprite.Sprite):
         self.speedy = random.randint(1, SPEED)
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-200, -100)
+        self.rect.y = random.randrange(randomY_min, randomY_max)
 
     def update(self):
         # 左右隨機移動
@@ -174,10 +190,10 @@ class Moto(pygame.sprite.Sprite):
         elif self.rect.left < EDGE_LEFT + 10:
             self.rect.left = EDGE_LEFT + 10
 
-        # 移到最頂
+        # 超出底部 移到最頂
         if self.rect.top > HEIGHT:
             self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(-150, -100)
+            self.rect.y = random.randrange(randomY_min, randomY_max)
 
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, center):
@@ -209,7 +225,7 @@ class Oil(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-200, -100)
+        self.rect.bottom = 0
 
     def update(self):
         self.rect.y += SPEED
@@ -344,6 +360,7 @@ while running:
     all_sprites.update()
 
     # 4.偵測碰撞
+    #rock
     hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
     for hit in hits:
         expl = Explosion(hit.rect.center)
@@ -354,6 +371,7 @@ while running:
         player.lives -= 1
         player.hide()
 
+    #moto
     hits = pygame.sprite.spritecollide(player, moto_group, True)
     for hit in hits:
         expl = Explosion(hit.rect.center)
@@ -361,6 +379,11 @@ while running:
         expl = Explosion(player.rect.center)
         all_sprites.add(expl)
         newMoto()
+
+    #cones
+    hits = pygame.sprite.spritecollide(player, cones_group, False)
+    for hit in hits:
+        hit.hit()
 
     # 5.加分計算
     hits = pygame.sprite.spritecollide(player, oil_group, True)
