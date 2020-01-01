@@ -201,6 +201,21 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
+class Oil(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.scale(oil_img, (25,25))
+        self.rect = self.image.get_rect()
+        # 生成位置
+        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+        self.rect.y = random.randrange(-200, -100)
+
+    def update(self):
+        self.rect.y += SPEED
+
+        if self.rect.top > HEIGHT:
+            self.kill()
+
 ###############################
 # add class
 def newRock():
@@ -217,6 +232,11 @@ def newCones():
     new_cones = Cones()
     all_sprites.add(new_cones)
     cones_group.add(new_cones)
+
+def newOil():
+    new_oil = Oil()
+    all_sprites.add(new_oil)
+    oil_group.add(new_oil)
 
 ###############################
 # 載入圖片
@@ -260,6 +280,9 @@ for i in range(8):
     img = pygame.transform.scale(img, (50,50))
     explosion_imgs.append(img)
 
+# oil
+oil_img = pygame.image.load(path.join(img_folder, 'oil.png')).convert_alpha()
+
 ###############################
 ## Game loop
 running = True
@@ -277,6 +300,7 @@ while running:
         rock_group = pygame.sprite.Group()
         moto_group = pygame.sprite.Group()
         cones_group = pygame.sprite.Group()
+        oil_group = pygame.sprite.Group()
 
         # 建立玩家
         player = Player()
@@ -305,7 +329,7 @@ while running:
     # 3.精靈更新
     all_sprites.update()
 
-    # 5.偵測碰撞
+    # 4.偵測碰撞
     hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
     for hit in hits:
         expl = Explosion(hit.rect.center)
@@ -324,7 +348,11 @@ while running:
         all_sprites.add(expl)
         newMoto()
 
-    # 4.畫面繪製
+    # 5.機率性掉落 加分物 Oil
+    if random.random() < 0.001:
+        newOil()
+
+    # 6.畫面繪製
     screen.fill(GREEN_Grassland)
 
     lineY = ( lineY + SPEED ) % lineShift - lineShift
