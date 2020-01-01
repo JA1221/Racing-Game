@@ -239,6 +239,16 @@ def newOil():
     oil_group.add(new_oil)
 
 ###############################
+#顯示 文字
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font("msjh.ttf", size)
+    font.set_bold(True)
+    text_surface = font.render(text, False, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
+
+###############################
 # 載入圖片
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
@@ -313,6 +323,9 @@ while running:
         newMoto()
         newCones()
 
+        # 分數
+        score = 0
+
     # 2.幀數控制 輸入偵測
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -348,17 +361,29 @@ while running:
         all_sprites.add(expl)
         newMoto()
 
-    # 5.機率性掉落 加分物 Oil
+    # 5.加分計算
+    hits = pygame.sprite.spritecollide(player, oil_group, True)
+    for hit in hits:
+        score += 1000;
+    if not player.hidden:
+        score += 2;
+
+    # 6.機率性掉落 加分物 Oil
     if random.random() < 0.001:
         newOil()
 
-    # 6.畫面繪製
-    screen.fill(GREEN_Grassland)
+    # 7.畫面繪製
 
+    # 底色
+    screen.fill(GREEN_Grassland)
+    # 賽道shift
     lineY = ( lineY + SPEED ) % lineShift - lineShift
     screen.blit(road, (EDGE_LEFT, lineY))
-
+    # 繪製精靈
     all_sprites.draw(screen)
+    # 繪製文字訊息
+    draw_text(screen, 'Score : ' + str(score), 18, EDGE_RIGHT + (WIDTH - EDGE_RIGHT )/2, 50)
+
     pygame.display.flip() 
     pygame.display.set_caption('競速賽車 ' + str(int(clock.get_fps())) + " fps")    
 
