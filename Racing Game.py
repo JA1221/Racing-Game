@@ -103,6 +103,44 @@ class Rock(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.__init__()
 
+class Moto(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.img_orig = random.choice(moto_imgs)
+        self.image = pygame.transform.scale(self.img_orig, (20,40))
+        self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width *.90 / 2)
+        # 移動變數
+        self.movex_delay = 1000
+        self.last_update = pygame.time.get_ticks()
+
+        self.speedx = random.randint(-1,1)
+        self.speedy = random.randint(1, SPEED)
+        # 生成位置
+        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+        self.rect.y = random.randrange(-150, -100)
+
+    def update(self):
+        # 左右隨機移動
+        time_now = pygame.time.get_ticks()
+        if time_now - self.last_update > self.movex_delay:
+            self.last_update = time_now
+            self.speedx = random.randint(-1,1)
+
+        # 移動
+        self.rect.y += self.speedy
+        self.rect.x += self.speedx
+
+        # 保持 左右界線
+        if self.rect.right > EDGE_RIGHT:
+            self.rect.right = EDGE_RIGHT
+        elif self.rect.left < EDGE_LEFT + 10:
+            self.rect.left = EDGE_LEFT + 10
+
+        if self.rect.top > HEIGHT:
+            self.__init__()
+
+
 ###############################
 # 載入圖片
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
@@ -156,6 +194,8 @@ while running:
         all_sprites.add(player)
         rock = Rock()
         all_sprites.add(rock)
+        moto = Moto()
+        all_sprites.add(moto)
 
     # 2.幀數控制 輸入偵測
     clock.tick(FPS)
