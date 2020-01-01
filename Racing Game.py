@@ -218,10 +218,10 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
-class Oil(pygame.sprite.Sprite):
+class gas(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(oil_img, (25,25))
+        self.image = pygame.transform.scale(gas_img, (25,25))
         self.rect = self.image.get_rect()
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
@@ -250,10 +250,10 @@ def newCones():
     all_sprites.add(new_cones)
     cones_group.add(new_cones)
 
-def newOil():
-    new_oil = Oil()
-    all_sprites.add(new_oil)
-    oil_group.add(new_oil)
+def newgas():
+    new_gas = gas()
+    all_sprites.add(new_gas)
+    gas_group.add(new_gas)
 
 ###############################
 #顯示 文字
@@ -307,8 +307,8 @@ for i in range(8):
     img = pygame.transform.scale(img, (50,50))
     explosion_imgs.append(img)
 
-# oil
-oil_img = pygame.image.load(path.join(img_folder, 'oil.png')).convert_alpha()
+# gas
+gas_img = pygame.image.load(path.join(img_folder, 'gas.png')).convert_alpha()
 ###################################################
 #載入音樂
 
@@ -339,7 +339,7 @@ while running:
         rock_group = pygame.sprite.Group()
         moto_group = pygame.sprite.Group()
         cones_group = pygame.sprite.Group()
-        oil_group = pygame.sprite.Group()
+        gas_group = pygame.sprite.Group()
 
         # 建立玩家
         player = Player()
@@ -403,16 +403,16 @@ while running:
         hit.hit()
 
     # 5.加分計算
-    hits = pygame.sprite.spritecollide(player, oil_group, True)
+    hits = pygame.sprite.spritecollide(player, gas_group, True)
     for hit in hits:
         get_gas.play()
         score += 1000;
     if not player.hidden:
         score += 2;
 
-    # 6.機率性掉落 加分物 Oil
+    # 6.機率性掉落 加分物 gas
     if random.random() < 0.001:
-        newOil()
+        newgas()
 
     # 7.畫面繪製
 
