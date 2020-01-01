@@ -11,7 +11,7 @@ sound_folder = path.join(path.dirname(__file__), 'sounds')
 WIDTH = 600
 HEIGHT = 700
 SPEED = 3
-FPS = 60
+FPS = 100
 EDGE_LEFT = 70
 EDGE_RIGHT = EDGE_LEFT + 260
 
@@ -103,6 +103,22 @@ class Rock(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.__init__()
 
+class Cones(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.rotozoom(cones_img, random.randint(0,360), 0.4)
+        self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width *.90 / 2)
+        # 生成位置
+        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+        self.rect.y = random.randrange(-150, -100)
+
+    def update(self):
+        self.rect.y += SPEED
+
+        if self.rect.top > HEIGHT:
+            self.__init__()
+
 class Moto(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -146,7 +162,7 @@ class Moto(pygame.sprite.Sprite):
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
 
-#cars & motos
+# cars & motos
 car_imgs = []
 moto_imgs = []
 vehicle_color = ['black', 'blue', 'green', 'red', 'yellow']
@@ -162,10 +178,10 @@ for color in vehicle_color:
     img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
     moto_imgs.append(img)
 
-#road
+# road
 road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
 
-#rock
+# rock
 rock_imgs = []
 for i in range(1,4):
     filename = 'rock{}.png'.format(i)
@@ -196,6 +212,8 @@ while running:
         all_sprites.add(rock)
         moto = Moto()
         all_sprites.add(moto)
+        cones = Cones()
+        all_sprites.add(cones)
 
     # 2.幀數控制 輸入偵測
     clock.tick(FPS)
