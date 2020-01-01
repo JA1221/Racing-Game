@@ -156,6 +156,22 @@ class Moto(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.__init__()
 
+###############################
+# add class
+def newRock():
+    new_rock = Rock()
+    all_sprites.add(new_rock)
+    rock_group.add(new_rock)
+
+def newMoto():
+    new_moto = Moto()
+    all_sprites.add(new_moto)
+    moto_group.add(new_moto)
+
+def newCones():
+    new_cones = Cones()
+    all_sprites.add(new_cones)
+    cones_group.add(new_cones)
 
 ###############################
 # 載入圖片
@@ -205,15 +221,18 @@ while running:
         menu_display = False
         # 建立群組
         all_sprites = pygame.sprite.Group()
+        rock_group = pygame.sprite.Group()
+        moto_group = pygame.sprite.Group()
+        cones_group = pygame.sprite.Group()
+
         # 建立玩家
         player = Player()
         all_sprites.add(player)
-        rock = Rock()
-        all_sprites.add(rock)
-        moto = Moto()
-        all_sprites.add(moto)
-        cones = Cones()
-        all_sprites.add(cones)
+
+        # 建立障礙
+        newRock()
+        newMoto()
+        newCones()
 
     # 2.幀數控制 輸入偵測
     clock.tick(FPS)
