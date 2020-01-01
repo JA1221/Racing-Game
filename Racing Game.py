@@ -95,13 +95,15 @@ class Rock(pygame.sprite.Sprite):
         self.radius = int(self.rect.width *.90 / 2)
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-150, -100)
+        self.rect.y = random.randrange(-200, -100)
 
     def update(self):
         self.rect.y += SPEED
 
+        # 移到最頂
         if self.rect.top > HEIGHT:
-            self.__init__()
+            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+            self.rect.y = random.randrange(-200, -100)
 
 class Cones(pygame.sprite.Sprite):
     def __init__(self):
@@ -111,13 +113,14 @@ class Cones(pygame.sprite.Sprite):
         self.radius = int(self.rect.width *.90 / 2)
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-150, -100)
+        self.rect.y = random.randrange(-200, -100)
 
     def update(self):
         self.rect.y += SPEED
 
         if self.rect.top > HEIGHT:
-            self.__init__()
+            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+            self.rect.y = random.randrange(-200, -100)
 
 class Moto(pygame.sprite.Sprite):
     def __init__(self):
@@ -134,7 +137,7 @@ class Moto(pygame.sprite.Sprite):
         self.speedy = random.randint(1, SPEED)
         # 生成位置
         self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(-150, -100)
+        self.rect.y = random.randrange(-200, -100)
 
     def update(self):
         # 左右隨機移動
@@ -153,8 +156,11 @@ class Moto(pygame.sprite.Sprite):
         elif self.rect.left < EDGE_LEFT + 10:
             self.rect.left = EDGE_LEFT + 10
 
+        # 移到最頂
         if self.rect.top > HEIGHT:
             self.__init__()
+            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
+            self.rect.y = random.randrange(-150, -100)
 
 ###############################
 # add class
