@@ -309,6 +309,18 @@ for i in range(8):
 
 # oil
 oil_img = pygame.image.load(path.join(img_folder, 'oil.png')).convert_alpha()
+###################################################
+#載入音樂
+
+expl_sounds = []
+for i in range(2):
+    filename = 'Car crash_0{}.ogg'.format(i)
+    expl_sounds.append(pygame.mixer.Sound(path.join(sound_folder, filename)))
+
+get_gas = pygame.mixer.Sound(path.join(sound_folder, 'get gas.ogg'))
+slip = pygame.mixer.Sound(path.join(sound_folder, 'slip.ogg'))
+
+pygame.mixer.music.set_volume(0.2)
 
 ###############################
 ## Game loop
@@ -363,6 +375,7 @@ while running:
     #rock
     hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
     for hit in hits:
+        random.choice(expl_sounds).play()
         expl = Explosion(hit.rect.center)
         all_sprites.add(expl)
         expl = Explosion(player.rect.center)
@@ -374,6 +387,7 @@ while running:
     #moto
     hits = pygame.sprite.spritecollide(player, moto_group, True)
     for hit in hits:
+        random.choice(expl_sounds).play()
         expl = Explosion(hit.rect.center)
         all_sprites.add(expl)
         expl = Explosion(player.rect.center)
@@ -385,11 +399,13 @@ while running:
     #cones
     hits = pygame.sprite.spritecollide(player, cones_group, False)
     for hit in hits:
+        slip.play()
         hit.hit()
 
     # 5.加分計算
     hits = pygame.sprite.spritecollide(player, oil_group, True)
     for hit in hits:
+        get_gas.play()
         score += 1000;
     if not player.hidden:
         score += 2;
