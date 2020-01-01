@@ -246,7 +246,6 @@ class Tree(pygame.sprite.Sprite):
         self.rect.y += SPEED
 
         if self.rect.top > HEIGHT or (self.rect.right > EDGE_LEFT and self.rect.left < EDGE_RIGHT + 10):
-            print('kill')
             self.kill()
 
 ###############################
@@ -346,7 +345,7 @@ for i in range(2):
 get_gas = pygame.mixer.Sound(path.join(sound_folder, 'get gas.ogg'))
 slip = pygame.mixer.Sound(path.join(sound_folder, 'slip.ogg'))
 
-pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.set_volume(0.3)
 
 ###############################
 ## Game loop
@@ -360,6 +359,11 @@ while running:
     # 1.遊戲主畫面
     if menu_display:
         menu_display = False
+
+        # 播放 遊戲音樂
+        pygame.mixer.music.load(path.join(sound_folder, 'BGM.mp3'))
+        pygame.mixer.music.play(-1)     ## makes the gameplay sound in an endless loop
+
         # 建立群組
         all_sprites = pygame.sprite.Group()
         rock_group = pygame.sprite.Group()
