@@ -379,6 +379,8 @@ while running:
         expl = Explosion(player.rect.center)
         all_sprites.add(expl)
         newMoto()
+        player.lives -= 1
+        player.hide()
 
     #cones
     hits = pygame.sprite.spritecollide(player, cones_group, False)
