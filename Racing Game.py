@@ -25,7 +25,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-GREEN_Grassland = (27,125,67)
+GREEN_Grassland = (58,185,108)
 
 ###############################
 
@@ -233,6 +233,22 @@ class gas(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.kill()
 
+class Tree(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.rotozoom(tree_img, random.randint(0,360), random.uniform(0.2,0.6))
+        self.rect = self.image.get_rect()
+        # 生成位置
+        self.rect.x = random.randrange(0 - self.rect.width, WIDTH)
+        self.rect.bottom = 0
+
+    def update(self):
+        self.rect.y += SPEED
+
+        if self.rect.top > HEIGHT or (self.rect.right > EDGE_LEFT and self.rect.left < EDGE_RIGHT + 10):
+            print('kill')
+            self.kill()
+
 ###############################
 # add class
 def newRock():
@@ -255,6 +271,9 @@ def newgas():
     all_sprites.add(new_gas)
     gas_group.add(new_gas)
 
+def newTree():
+    new_Tree = Tree()
+    all_sprites.add(new_Tree)
 ###############################
 #顯示 文字
 def draw_text(surf, text, size, x, y):
@@ -267,6 +286,9 @@ def draw_text(surf, text, size, x, y):
 
 ###############################
 # 載入圖片
+background = pygame.image.load(path.join(img_folder, 'Grassland.png')).convert()
+background_rect = background.get_rect()
+
 player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
 player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
 
@@ -309,6 +331,10 @@ for i in range(8):
 
 # gas
 gas_img = pygame.image.load(path.join(img_folder, 'gas.png')).convert_alpha()
+
+# tree
+tree_img = pygame.image.load(path.join(img_folder, 'tree.png')).convert_alpha()
+
 ###################################################
 #載入音樂
 
@@ -415,9 +441,12 @@ while running:
         newgas()
 
     # 7.畫面繪製
-
-    # 底色
+    if random.random() < 0.1:
+        newTree()
+    # 底圖
     screen.fill(GREEN_Grassland)
+    # screen.blit(background, background_rect)
+
     # 賽道shift
     lineY = ( lineY + SPEED ) % lineShift - lineShift
     screen.blit(road, (EDGE_LEFT, lineY))
