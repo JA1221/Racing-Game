@@ -45,12 +45,25 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 20
-        self.rect.centerx = WIDTH / 2
+        self.rect.centerx = EDGE_LEFT + (EDGE_RIGHT - EDGE_LEFT) / 2 + 5
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0 
         self.speedy = 0
 
+        self.lives = 3
+        self.hidden = False
+        self.hide_timer = pygame.time.get_ticks()
+
     def update(self):
+        # 隱藏
+        if self.hidden:
+            if self.lives > 0:
+                if pygame.time.get_ticks() - self.hide_timer > 1000:
+                    self.hidden = False
+                    self.rect.centerx = EDGE_LEFT + (EDGE_RIGHT - EDGE_LEFT) / 2 + 5
+                    self.rect.bottom = HEIGHT - 10
+            return
+
         # 速度歸零
         self.speedx = 0
         self.speedy = 0
@@ -80,6 +93,11 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT
         elif self.rect.top < HEIGHT *0.7:
             self.rect.top = HEIGHT *0.7
+
+    def hide(self):
+        self.hidden = True
+        self.hide_timer = pygame.time.get_ticks()
+        self.rect.center = (self.rect.centerx, HEIGHT + 200)
 
 class Player2(Player):
     def __init__(self):
@@ -295,6 +313,8 @@ while running:
         expl = Explosion(player.rect.center)
         all_sprites.add(expl)
         newRock()
+        player.lives -= 1
+        player.hide()
 
     hits = pygame.sprite.spritecollide(player, moto_group, True)
     for hit in hits:
