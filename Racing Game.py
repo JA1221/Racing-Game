@@ -273,6 +273,12 @@ def newgas():
 def newTree():
     new_Tree = Tree()
     all_sprites.add(new_Tree)
+
+def newExplosion(center):
+    random.choice(expl_sounds).play()
+    expl = Explosion(center)
+    all_sprites.add(expl)
+
 ###############################
 #顯示 文字
 def draw_text(surf, text, size, x, y):
@@ -345,7 +351,7 @@ for i in range(2):
 get_gas = pygame.mixer.Sound(path.join(sound_folder, 'get gas.ogg'))
 slip = pygame.mixer.Sound(path.join(sound_folder, 'slip.ogg'))
 
-pygame.mixer.music.set_volume(0.3)
+# pygame.mixer.music.set_volume(0.3)
 
 ###############################
 ## Game loop
@@ -405,11 +411,8 @@ while running:
     #rock
     hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
     for hit in hits:
-        random.choice(expl_sounds).play()
-        expl = Explosion(hit.rect.center)
-        all_sprites.add(expl)
-        expl = Explosion(player.rect.center)
-        all_sprites.add(expl)
+        newExplosion(hit.rect.center)
+        newExplosion(player.rect.center)
         newRock()
         player.lives -= 1
         player.hide()
@@ -417,11 +420,8 @@ while running:
     #moto
     hits = pygame.sprite.spritecollide(player, moto_group, True)
     for hit in hits:
-        random.choice(expl_sounds).play()
-        expl = Explosion(hit.rect.center)
-        all_sprites.add(expl)
-        expl = Explosion(player.rect.center)
-        all_sprites.add(expl)
+        newExplosion(hit.rect.center)
+        newExplosion(player.rect.center)
         newMoto()
         player.lives -= 1
         player.hide()
