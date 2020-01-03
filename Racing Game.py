@@ -38,7 +38,37 @@ pygame.display.set_caption('競速賽車')
 clock = pygame.time.Clock()     ## For syncing the FPS
 
 #####################################
-# 遊戲畫面
+# 遊戲主畫面
+def main_menu():
+    global screen
+
+    # 載入主畫面音樂
+    menu_song = pygame.mixer.music.load(path.join(sound_folder, 'Menu BGM.mp3'))
+    pygame.mixer.music.play(-1)
+
+    # 背景圖片
+    background = pygame.image.load(path.join(img_folder, "main.jpg")).convert()
+    background = pygame.transform.scale(background, (WIDTH, HEIGHT), screen)#縮放
+    screen.blit(background, (0,0))
+
+    draw_text(screen, "按下 [ENTER] 開始遊戲", 30, WIDTH/2, 260)
+    draw_text(screen, "or [Q] 離開", 30, WIDTH/2, 300)
+    pygame.display.update()
+
+    while True:
+        event = pygame.event.poll() # 取一個事件
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:#進入遊戲
+                break
+            elif event.key == pygame.K_q:#離開
+                pygame.quit()
+                quit()
+        elif event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+    pygame.mixer.music.stop()  
+
+# 遊戲結束畫面
 def game_Over_screen():
     global screen
 
@@ -388,6 +418,8 @@ lineShift = road.get_height() - HEIGHT
 while running:
     # 1.遊戲主畫面
     if menu_display:
+        main_menu()
+        # pygame.time.wait(3000)
         menu_display = False
 
         # 播放 遊戲音樂
