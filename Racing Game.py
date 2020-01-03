@@ -245,9 +245,11 @@ class Tree(pygame.sprite.Sprite):
     def update(self):
         self.rect.y += SPEED
 
-        if self.rect.top > HEIGHT or (self.rect.right > EDGE_LEFT and self.rect.left < EDGE_RIGHT + 10):
+        if self.rect.top > HEIGHT or self.isOnRoad():
             self.kill()
 
+    def isOnRoad(self):
+        return self.rect.right > EDGE_LEFT and self.rect.left < EDGE_RIGHT + 10
 ###############################
 # add class
 def newRock():
@@ -408,7 +410,7 @@ while running:
     all_sprites.update()
 
     # 4.偵測碰撞
-    #rock
+    # rock
     hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
     for hit in hits:
         newExplosion(hit.rect.center)
@@ -417,7 +419,7 @@ while running:
         player.lives -= 1
         player.hide()
 
-    #moto
+    # moto
     hits = pygame.sprite.spritecollide(player, moto_group, True)
     for hit in hits:
         newExplosion(hit.rect.center)
@@ -426,7 +428,7 @@ while running:
         player.lives -= 1
         player.hide()
 
-    #cones
+    # cones
     hits = pygame.sprite.spritecollide(player, cones_group, False)
     for hit in hits:
         slip.play()
