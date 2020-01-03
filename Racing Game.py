@@ -308,13 +308,18 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+def IMG(filename):
+    return pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+
+def SOUND(filename):
+    return pygame.mixer.Sound(path.join(sound_folder, filename))
 ###############################
 # 載入圖片
-background = pygame.image.load(path.join(img_folder, 'Grassland.png')).convert()
+background = IMG('Grassland.png')
 background_rect = background.get_rect()
 
-player_img_01 = pygame.image.load(path.join(img_folder, 'car1.png')).convert_alpha()
-player_img_02 = pygame.image.load(path.join(img_folder, 'car2.png')).convert_alpha()
+player_img_01 = IMG('car1.png')
+player_img_02 = IMG('car2.png')
 
 # cars & motos
 car_imgs = []
@@ -325,39 +330,39 @@ for color in vehicle_color:
     #car
     for i in range(1,6):
         filename = 'car_{}_{}.png'.format(color, i)
-        img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+        img = IMG(filename)
         car_imgs.append(img)
     #moto
     filename = 'motorcycle_{}.png'.format(color)
-    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    img = IMG(filename)
     moto_imgs.append(img)
 
 # road
-road = pygame.image.load(path.join(img_folder, 'road.png')).convert_alpha()
+road = IMG('road.png')
 
 # rock
 rock_imgs = []
 for i in range(1,4):
     filename = 'rock{}.png'.format(i)
-    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    img = IMG(filename)
     rock_imgs.append(img)
 
 #cones
-cones_img = pygame.image.load(path.join(img_folder, 'cones.png')).convert_alpha()
+cones_img = IMG('cones.png')
 
 # Explosion
 explosion_imgs = []
 for i in range(8):
     filename = 'Explosion0{}.png'.format(i)
-    img = pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    img = IMG(filename)
     img = pygame.transform.scale(img, (50,50))
     explosion_imgs.append(img)
 
 # gas
-gas_img = pygame.image.load(path.join(img_folder, 'gas.png')).convert_alpha()
+gas_img = IMG('gas.png')
 
 # tree
-tree_img = pygame.image.load(path.join(img_folder, 'tree.png')).convert_alpha()
+tree_img = IMG('tree.png')
 
 ###################################################
 #載入音樂
@@ -365,10 +370,10 @@ tree_img = pygame.image.load(path.join(img_folder, 'tree.png')).convert_alpha()
 expl_sounds = []
 for i in range(2):
     filename = 'Car crash_0{}.ogg'.format(i)
-    expl_sounds.append(pygame.mixer.Sound(path.join(sound_folder, filename)))
+    expl_sounds.append(SOUND(filename))
 
-get_gas = pygame.mixer.Sound(path.join(sound_folder, 'get gas.ogg'))
-slip = pygame.mixer.Sound(path.join(sound_folder, 'slip.ogg'))
+get_gas = SOUND('get gas.ogg')
+slip = SOUND('slip.ogg')
 
 # pygame.mixer.music.set_volume(0.3)
 
