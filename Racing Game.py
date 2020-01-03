@@ -79,7 +79,7 @@ def game_Over_screen():
 
     while True:
         event = pygame.event.poll() # 取一個事件
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN or event.type == pygame.QUIT:
             pygame.quit()
             quit()
 
