@@ -37,6 +37,22 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('競速賽車')
 clock = pygame.time.Clock()     ## For syncing the FPS
 
+#####################################
+# 遊戲畫面
+def game_Over_screen():
+    global screen
+
+    screen.blit(background, (0,0))
+    draw_text(screen, "Game OVER !", 30, WIDTH/2, HEIGHT/2)
+    draw_text(screen, "遊戲分數：" + str(score), 30, WIDTH/2, HEIGHT/2 + 40)
+    pygame.display.update()
+
+    while True:
+        event = pygame.event.poll() # 取一個事件
+        if event.type == pygame.KEYDOWN:
+            pygame.quit()
+            quit()
+
 ############## 物件 #################
 # 玩家
 class Player(pygame.sprite.Sprite):
@@ -280,6 +296,7 @@ def newExplosion(center):
     random.choice(expl_sounds).play()
     expl = Explosion(center)
     all_sprites.add(expl)
+    Expl_group.add(expl)
 
 ###############################
 #顯示 文字
@@ -378,6 +395,7 @@ while running:
         moto_group = pygame.sprite.Group()
         cones_group = pygame.sprite.Group()
         gas_group = pygame.sprite.Group()
+        Expl_group = pygame.sprite.Group()
 
         # 建立玩家
         player = Player()
@@ -434,7 +452,12 @@ while running:
         slip.play()
         hit.hit()
 
-    # 5.加分計算
+    # 6.檢查生命數
+    if player.lives <= 0 and len(Expl_group)<=0:
+        running = False
+        game_Over_screen()
+
+    # 7.加分計算
     hits = pygame.sprite.spritecollide(player, gas_group, True)
     for hit in hits:
         get_gas.play()
@@ -442,11 +465,11 @@ while running:
     if not player.hidden:
         score += 2;
 
-    # 6.機率性掉落 加分物 gas
+    # 8.機率性掉落 加分物 gas
     if random.random() < 0.001:
         newgas()
 
-    # 7.畫面繪製
+    # 9.畫面繪製
     if random.random() < 0.1:
         newTree()
     # 底圖
