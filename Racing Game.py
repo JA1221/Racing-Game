@@ -1,11 +1,8 @@
 #coding=utf-8
 import pygame
 import random
+import GameObject
 from os import path
-
-#檔案夾
-img_folder = path.join(path.dirname(__file__), 'images')
-sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 #參數規格
 WIDTH = 600
@@ -14,17 +11,10 @@ SPEED = 3
 FPS = 100
 EDGE_LEFT = 70
 EDGE_RIGHT = EDGE_LEFT + 260
-randomY_min = -400
-randomY_max = -50
 
 #顏色
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-
 GREEN_Grassland = (58,185,108)
 
 ###############################
@@ -43,8 +33,7 @@ def main_menu():
     global screen
 
     # 載入主畫面音樂
-    menu_song = pygame.mixer.music.load(path.join(sound_folder, 'Menu BGM.mp3'))
-    pygame.mixer.music.play(-1)
+    playMUSIC('Menu BGM.mp3')
 
     # 背景圖片
     background = IMG(random.choice(('main2.jpg', 'main.jpg')))
@@ -72,7 +61,7 @@ def main_menu():
 def game_Over_screen():
     global screen
 
-    screen.blit(background, (0,0))
+    screen.blit(GameObject.background, (0,0))
     draw_text(screen, "Game OVER !", 30, WIDTH/2, HEIGHT/2)
     draw_text(screen, "遊戲分數：" + str(score), 30, WIDTH/2, HEIGHT/2 + 40)
     pygame.display.update()
@@ -83,248 +72,41 @@ def game_Over_screen():
             pygame.quit()
             quit()
 
-############## 物件 #################
-# 玩家
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.scale(player_img_01, (20,40))
-        # self.image = pygame.transform.scale(random.choice(car_imgs), (20,40))
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.radius = 20
-        self.rect.centerx = EDGE_LEFT + (EDGE_RIGHT - EDGE_LEFT) / 2 + 5
-        self.rect.bottom = HEIGHT - 10
-        self.speedx = 0 
-        self.speedy = 0
-        self.move_speed = 3
 
-        self.lives = 3
-        self.hidden = False
-        self.hide_timer = pygame.time.get_ticks()
-
-    def update(self):
-        # 隱藏
-        if self.hidden:
-            if self.lives > 0:
-                if pygame.time.get_ticks() - self.hide_timer > 1000:
-                    self.hidden = False
-                    self.rect.centerx = EDGE_LEFT + (EDGE_RIGHT - EDGE_LEFT) / 2 + 5
-                    self.rect.bottom = HEIGHT - 10
-            return
-
-        # 速度歸零
-        self.speedx = 0
-        self.speedy = 0
-
-        # 偵測方向鍵
-        keystate = pygame.key.get_pressed()     
-        if keystate[pygame.K_LEFT]:
-            self.speedx = -self.move_speed
-        if keystate[pygame.K_RIGHT]:
-            self.speedx = self.move_speed
-        if keystate[pygame.K_UP]:
-            self.speedy = -self.move_speed
-        if keystate[pygame.K_DOWN]:
-            self.speedy = self.move_speed
-
-        # 移動
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-
-        # 保持 左右界線
-        if self.rect.right > EDGE_RIGHT:
-            self.rect.right = EDGE_RIGHT
-        elif self.rect.left < EDGE_LEFT + 10:
-            self.rect.left = EDGE_LEFT + 10
-
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
-        elif self.rect.top < HEIGHT *0.7:
-            self.rect.top = HEIGHT *0.7
-
-    def hide(self):
-        self.hidden = True
-        self.hide_timer = pygame.time.get_ticks()
-        self.rect.center = (self.rect.centerx, HEIGHT + 200)
-
-class Player2(Player):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.scale(player_img_02, (35,65))
-
-class Rock(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.img_orig = random.choice(rock_imgs)
-        self.image = pygame.transform.rotozoom(self.img_orig, random.randint(0,360), random.uniform(0.2,0.7))
-        self.rect = self.image.get_rect()
-        self.radius = int(self.rect.width *.90 / 2)
-        # 生成位置
-        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(randomY_min, randomY_max)
-
-    def update(self):
-        self.rect.y += SPEED
-
-        # 超出底部 移到最頂
-        if self.rect.top > HEIGHT:
-            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(randomY_min, randomY_max)
-
-class Cones(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.rotozoom(cones_img, random.randint(0,360), 0.4)
-        self.rect = self.image.get_rect()
-        self.radius = int(self.rect.width *.90 / 2)
-        self.speedy = SPEED
-        # 生成位置
-        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(randomY_min, randomY_max)
-        # 碰撞
-        self.hited = False
-        self.hit_timer = pygame.time.get_ticks()
-
-    def update(self):
-        self.rect.y += self.speedy
-
-        if self.hit and pygame.time.get_ticks() - self.hit_timer > 500:
-            self.hited = False
-            self.speedy = SPEED
-
-        # 超出底部 移到最頂
-        if self.rect.top > HEIGHT:
-            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(randomY_min, randomY_max)
-
-    def hit(self):
-        self.hited = True
-        self.hit_timer = pygame.time.get_ticks()
-        self.speedy = -1
-
-class Moto(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.img_orig = random.choice(moto_imgs)
-        self.image = pygame.transform.scale(self.img_orig, (20,40))
-        self.rect = self.image.get_rect()
-        # 移動變數
-        self.movex_delay = 1000
-        self.last_update = pygame.time.get_ticks()
-
-        self.speedx = random.randint(-1,1)
-        self.speedy = random.randint(1, SPEED)
-        # 生成位置
-        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.y = random.randrange(randomY_min, randomY_max)
-
-    def update(self):
-        # 左右隨機移動
-        time_now = pygame.time.get_ticks()
-        if time_now - self.last_update > self.movex_delay:
-            self.last_update = time_now
-            self.speedx = random.randint(-1,1)
-
-        # 移動
-        self.rect.y += self.speedy
-        self.rect.x += self.speedx
-
-        # 保持 左右界線
-        if self.rect.right > EDGE_RIGHT:
-            self.rect.right = EDGE_RIGHT
-        elif self.rect.left < EDGE_LEFT + 10:
-            self.rect.left = EDGE_LEFT + 10
-
-        # 超出底部 移到最頂
-        if self.rect.top > HEIGHT:
-            self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-            self.rect.y = random.randrange(randomY_min, randomY_max)
-
-class Explosion(pygame.sprite.Sprite):
-    def __init__(self, center):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = explosion_imgs[0]
-        self.rect = self.image.get_rect()
-        self.rect.center = center
-        self.frame = 0 
-        self.last_update = pygame.time.get_ticks()
-        self.frame_delay = 75 # 每張圖片間距時間
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_update > self.frame_delay:
-            self.last_update = now
-            self.frame += 1
-            if self.frame == len(explosion_imgs):
-                self.kill()
-            else:
-                center = self.rect.center
-                self.image = explosion_imgs[self.frame]
-                self.rect = self.image.get_rect()
-                self.rect.center = center
-
-class gas(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.scale(gas_img, (25,25))
-        self.rect = self.image.get_rect()
-        # 生成位置
-        self.rect.x = random.randrange(EDGE_LEFT + 10 , EDGE_RIGHT - self.rect.width)
-        self.rect.bottom = 0
-
-    def update(self):
-        self.rect.y += SPEED
-
-        if self.rect.top > HEIGHT:
-            self.kill()
-
-class Tree(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.rotozoom(tree_img, random.randint(0,360), random.uniform(0.2,0.6))
-        self.rect = self.image.get_rect()
-        # 生成位置
-        self.rect.x = random.randrange(0 - self.rect.width, WIDTH)
-        self.rect.bottom = 0
-
-    def update(self):
-        self.rect.y += SPEED
-
-        if self.rect.top > HEIGHT or self.isOnRoad():
-            self.kill()
-
-    def isOnRoad(self):
-        return self.rect.right > EDGE_LEFT and self.rect.left < EDGE_RIGHT + 10
 ###############################
 # add class
+def newPlayer():
+    player = GameObject.Player()
+    all_sprites.add(player)
+    return player
+
 def newRock():
-    new_rock = Rock()
+    new_rock = GameObject.Rock()
     all_sprites.add(new_rock)
     rock_group.add(new_rock)
 
 def newMoto():
-    new_moto = Moto()
+    new_moto = GameObject.Moto()
     all_sprites.add(new_moto)
     moto_group.add(new_moto)
 
 def newCones():
-    new_cones = Cones()
+    new_cones = GameObject.Cones()
     all_sprites.add(new_cones)
     cones_group.add(new_cones)
 
 def newgas():
-    new_gas = gas()
+    new_gas = GameObject.gas()
     all_sprites.add(new_gas)
     gas_group.add(new_gas)
 
 def newTree():
-    new_Tree = Tree()
+    new_Tree = GameObject.Tree()
     all_sprites.add(new_Tree)
 
 def newExplosion(center):
     random.choice(expl_sounds).play()
-    expl = Explosion(center)
+    expl = GameObject.Explosion(center)
     all_sprites.add(expl)
     Expl_group.add(expl)
 
@@ -339,61 +121,13 @@ def draw_text(surf, text, size, x, y):
     surf.blit(text_surface, text_rect)
 
 def IMG(filename):
-    return pygame.image.load(path.join(img_folder, filename)).convert_alpha()
+    return GameObject.IMG(filename)
 
 def SOUND(filename):
-    return pygame.mixer.Sound(path.join(sound_folder, filename))
-###############################
-# 載入圖片
-background = IMG('Grassland.png')
-background_rect = background.get_rect()
+    return GameObject.SOUND(filename)
 
-player_img_01 = IMG('car1.png')
-player_img_02 = IMG('car2.png')
-
-# cars & motos
-car_imgs = []
-moto_imgs = []
-vehicle_color = ['black', 'blue', 'green', 'red', 'yellow']
-
-for color in vehicle_color:
-    #car
-    for i in range(1,6):
-        filename = 'car_{}_{}.png'.format(color, i)
-        img = IMG(filename)
-        car_imgs.append(img)
-    #moto
-    filename = 'motorcycle_{}.png'.format(color)
-    img = IMG(filename)
-    moto_imgs.append(img)
-
-# road
-road = IMG('road.png')
-
-# rock
-rock_imgs = []
-for i in range(1,4):
-    filename = 'rock{}.png'.format(i)
-    img = IMG(filename)
-    rock_imgs.append(img)
-
-#cones
-cones_img = IMG('cones.png')
-
-# Explosion
-explosion_imgs = []
-for i in range(8):
-    filename = 'Explosion0{}.png'.format(i)
-    img = IMG(filename)
-    img = pygame.transform.scale(img, (50,50))
-    explosion_imgs.append(img)
-
-# gas
-gas_img = IMG('gas.png')
-
-# tree
-tree_img = IMG('tree.png')
-
+def playMUSIC(filename):
+    GameObject.playMUSIC(filename)
 ###################################################
 #載入音樂
 
@@ -413,7 +147,7 @@ running = True
 menu_display = True
 
 lineY = 0
-lineShift = road.get_height() - HEIGHT
+lineShift = GameObject.road.get_height() - HEIGHT
 
 while running:
     # 1.遊戲主畫面
@@ -423,8 +157,7 @@ while running:
         menu_display = False
 
         # 播放 遊戲音樂
-        pygame.mixer.music.load(path.join(sound_folder, 'BGM.mp3'))
-        pygame.mixer.music.play(-1)     ## makes the gameplay sound in an endless loop
+        playMUSIC('BGM.mp3')
 
         # 建立群組
         all_sprites = pygame.sprite.Group()
@@ -435,8 +168,7 @@ while running:
         Expl_group = pygame.sprite.Group()
 
         # 建立玩家
-        player = Player()
-        all_sprites.add(player)
+        player = newPlayer()
 
         # 建立障礙
         newRock()
@@ -511,11 +243,11 @@ while running:
         newTree()
     # 底圖
     screen.fill(GREEN_Grassland)
-    # screen.blit(background, background_rect)
+    # screen.blit(GameObject.background,(0, 0))
 
     # 賽道shift
     lineY = ( lineY + SPEED ) % lineShift - lineShift
-    screen.blit(road, (EDGE_LEFT, lineY))
+    screen.blit(GameObject.road, (EDGE_LEFT, lineY))
     # 繪製精靈
     all_sprites.draw(screen)
     # 繪製文字訊息
