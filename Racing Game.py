@@ -120,6 +120,14 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+#顯示生命數
+def draw_lives(surf, lives, img, x, y):
+    for i in range(lives):
+        img_rect= img.get_rect()
+        img_rect.x = x + 30 * i
+        img_rect.y = y
+        surf.blit(img, img_rect)
+
 def IMG(filename):
     return GameObject.IMG(filename)
 
@@ -250,8 +258,9 @@ while running:
     screen.blit(GameObject.road, (EDGE_LEFT, lineY))
     # 繪製精靈
     all_sprites.draw(screen)
-    # 繪製文字訊息
-    draw_text(screen, 'Score : ' + str(score), 18, EDGE_RIGHT + (WIDTH - EDGE_RIGHT )/2, 50)
+    # 繪製分數 生命數
+    draw_text(screen, 'Score : ' + str(score), 20, 465, 100)
+    draw_lives(screen, player.lives, player.image, 430, 150)
 
     pygame.display.flip() 
     pygame.display.set_caption('競速賽車 ' + str(int(clock.get_fps())) + " fps")    
