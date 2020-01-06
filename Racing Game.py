@@ -47,7 +47,7 @@ def main_menu():
     pygame.mixer.music.play(-1)
 
     # 背景圖片
-    background = pygame.image.load(path.join(img_folder, "main.jpg")).convert()
+    background = IMG(random.choice(('main2.jpg', 'main.jpg')))
     background = pygame.transform.scale(background, (WIDTH, HEIGHT), screen)#縮放
     screen.blit(background, (0,0))
 
@@ -500,7 +500,7 @@ while running:
         get_gas.play()
         score += 1000;
     if not player.hidden:
-        score += 2;
+        score += 1;
 
     # 8.機率性掉落 加分物 gas
     if random.random() < 0.001:
