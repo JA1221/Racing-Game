@@ -20,12 +20,19 @@ GREEN_Grassland = (58,185,108)
 ###############################
 
 #初始化 & 創建視窗
-pygame.init()
-pygame.mixer.init()
+def initGame():
+    global screen
+    global clock
+    global score
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('競速賽車')
-clock = pygame.time.Clock()     ## For syncing the FPS
+    pygame.init()
+    pygame.mixer.init()
+
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption('競速賽車')
+    clock = pygame.time.Clock()     ## For syncing the FPS
+    score = 0
+
 
 #####################################
 # 遊戲主畫面
@@ -151,118 +158,130 @@ slip = SOUND('slip.ogg')
 
 ###############################
 ## Game loop
-running = True
-menu_display = True
 
-lineY = 0
-lineShift = GameObject.road.get_height() - HEIGHT
+def main():
+    initGame()
+    running = True
+    menu_display = True
 
-while running:
-    # 1.遊戲主畫面
-    if menu_display:
-        main_menu()
-        # pygame.time.wait(3000)
-        menu_display = False
+    lineY = 0
+    lineShift = GameObject.road.get_height() - HEIGHT
+    
+    while running:
+        # 1.遊戲主畫面
+        if menu_display:
+            main_menu()
+            # pygame.time.wait(3000)
+            menu_display = False
 
-        # 播放 遊戲音樂
-        playMUSIC('BGM.mp3')
+            # 播放 遊戲音樂
+            playMUSIC('BGM.mp3')
 
-        # 建立群組
-        all_sprites = pygame.sprite.Group()
-        rock_group = pygame.sprite.Group()
-        moto_group = pygame.sprite.Group()
-        cones_group = pygame.sprite.Group()
-        gas_group = pygame.sprite.Group()
-        Expl_group = pygame.sprite.Group()
+            # 建立群組
+            global all_sprites
+            global rock_group
+            global moto_group
+            global cones_group
+            global gas_group
+            global Expl_group
+            all_sprites = pygame.sprite.Group()
+            rock_group = pygame.sprite.Group()
+            moto_group = pygame.sprite.Group()
+            cones_group = pygame.sprite.Group()
+            gas_group = pygame.sprite.Group()
+            Expl_group = pygame.sprite.Group()
 
-        # 建立玩家
-        player = newPlayer()
+            # 建立玩家
+            player = newPlayer()
 
-        # 建立障礙
-        newRock()
-        newRock()
-        newRock()
-        newMoto()
-        newCones()
+            # 建立障礙
+            newRock()
+            newRock()
+            newRock()
+            newMoto()
+            newCones()
 
-        # 分數
-        score = 0
+            # 分數
+            global score
 
-    # 2.幀數控制 輸入偵測
-    clock.tick(FPS)
-    for event in pygame.event.get():
-        #關閉視窗
-        if event.type == pygame.QUIT:
+        # 2.幀數控制 輸入偵測
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            #關閉視窗
+            if event.type == pygame.QUIT:
+                running = False
+
+            keyinput = pygame.key.get_pressed()
+            
+            # ESC 離開  
+            if keyinput[pygame.K_ESCAPE]:
+                running = False
+
+        # 3.精靈更新
+        all_sprites.update()
+
+        # 4.偵測碰撞
+        # rock
+        hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            newExplosion(hit.rect.center)
+            newExplosion(player.rect.center)
+            newRock()
+            player.lives -= 1
+            player.hide()
+
+        # moto
+        hits = pygame.sprite.spritecollide(player, moto_group, True)
+        for hit in hits:
+            newExplosion(hit.rect.center)
+            newExplosion(player.rect.center)
+            newMoto()
+            player.lives -= 1
+            player.hide()
+
+        # cones
+        hits = pygame.sprite.spritecollide(player, cones_group, False)
+        for hit in hits:
+            slip.play()
+            hit.hit()
+
+        # 6.檢查生命數
+        if player.lives <= 0 and len(Expl_group)<=0:
             running = False
+            game_Over_screen()
+            continue
 
-        keyinput = pygame.key.get_pressed()
-        
-        # ESC 離開  
-        if keyinput[pygame.K_ESCAPE]:
-            running = False
+        # 7.加分計算
+        hits = pygame.sprite.spritecollide(player, gas_group, True)
+        for hit in hits:
+            get_gas.play()
+            score += 1000;
+        if not player.hidden:
+            score += 1;
 
-    # 3.精靈更新
-    all_sprites.update()
+        # 8.機率性掉落 加分物 gas
+        if random.random() < 0.001:
+            newgas()
 
-    # 4.偵測碰撞
-    # rock
-    hits = pygame.sprite.spritecollide(player, rock_group, True, pygame.sprite.collide_circle)
-    for hit in hits:
-        newExplosion(hit.rect.center)
-        newExplosion(player.rect.center)
-        newRock()
-        player.lives -= 1
-        player.hide()
+        # 9.畫面繪製
+        if random.random() < 0.1:
+            newTree()
+        # 底圖
+        screen.fill(GREEN_Grassland)
+        # screen.blit(GameObject.background,(0, 0))
 
-    # moto
-    hits = pygame.sprite.spritecollide(player, moto_group, True)
-    for hit in hits:
-        newExplosion(hit.rect.center)
-        newExplosion(player.rect.center)
-        newMoto()
-        player.lives -= 1
-        player.hide()
+        # 賽道shift
+        lineY = ( lineY + SPEED ) % lineShift - lineShift
+        screen.blit(GameObject.road, (EDGE_LEFT, lineY))
+        # 繪製精靈
+        all_sprites.draw(screen)
+        # 繪製分數 生命數
+        draw_text(screen, 'Score : ' + str(score), 20, 465, 100)
+        draw_lives(screen, player.lives, player.image, 430, 150)
 
-    # cones
-    hits = pygame.sprite.spritecollide(player, cones_group, False)
-    for hit in hits:
-        slip.play()
-        hit.hit()
+        pygame.display.flip() 
+        pygame.display.set_caption('競速賽車 ' + str(int(clock.get_fps())) + " fps")
+    pygame.quit()
 
-    # 6.檢查生命數
-    if player.lives <= 0 and len(Expl_group)<=0:
-        running = False
-        game_Over_screen()
-
-    # 7.加分計算
-    hits = pygame.sprite.spritecollide(player, gas_group, True)
-    for hit in hits:
-        get_gas.play()
-        score += 1000;
-    if not player.hidden:
-        score += 1;
-
-    # 8.機率性掉落 加分物 gas
-    if random.random() < 0.001:
-        newgas()
-
-    # 9.畫面繪製
-    if random.random() < 0.1:
-        newTree()
-    # 底圖
-    screen.fill(GREEN_Grassland)
-    # screen.blit(GameObject.background,(0, 0))
-
-    # 賽道shift
-    lineY = ( lineY + SPEED ) % lineShift - lineShift
-    screen.blit(GameObject.road, (EDGE_LEFT, lineY))
-    # 繪製精靈
-    all_sprites.draw(screen)
-    # 繪製分數 生命數
-    draw_text(screen, 'Score : ' + str(score), 20, 465, 100)
-    draw_lives(screen, player.lives, player.image, 430, 150)
-
-    pygame.display.flip() 
-    pygame.display.set_caption('競速賽車 ' + str(int(clock.get_fps())) + " fps")    
-
-pygame.quit()
+if __name__ == "__main__":
+    main()
