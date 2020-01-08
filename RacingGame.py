@@ -71,7 +71,7 @@ def game_Over_screen():
 
     screen.blit(GameObject.background, (0,0))
     if(game.playerLives[1 - playerID] <= 0):
-        s = '恭喜:獲勝!'
+        s = '恭喜你獲勝!'
     else:
         s = '你先死了，再加油!'
     draw_text(screen, s, 30, WIDTH/2, HEIGHT/2)
@@ -233,9 +233,6 @@ def main():
             if not updateConnect():
                 break
 
-            while not game.begin():
-                updateConnect()
-
             # pygame.time.wait(3000)
             menu_display = False
 
@@ -268,7 +265,7 @@ def main():
 
             # 分數
             global score
-        
+
         updateConnect()
         # 2.幀數控制 輸入偵測
         clock.tick(FPS)
@@ -282,6 +279,9 @@ def main():
             # ESC 離開  
             if keyinput[pygame.K_ESCAPE]:
                 running = False
+
+        if not game.begin():
+                continue
 
         # 3.精靈更新
         all_sprites.update()
