@@ -70,7 +70,11 @@ def game_Over_screen():
     global screen
 
     screen.blit(GameObject.background, (0,0))
-    draw_text(screen, "Game OVER !", 30, WIDTH/2, HEIGHT/2)
+    if(game.playerLives[1 - playerID] <= 0):
+        s = '恭喜:獲勝!'
+    else:
+        s = '你先死了，再加油!'
+    draw_text(screen, s, 30, WIDTH/2, HEIGHT/2)
     draw_text(screen, "遊戲分數：" + str(score), 30, WIDTH/2, HEIGHT/2 + 40)
     pygame.display.update()
 
@@ -84,9 +88,9 @@ def game_Over_screen():
 ###############################
 # add class
 def newPlayer():
-    player = GameObject.Player()
+    player = GameObject.Player(random.randrange(25))
     all_sprites.add(player)
-    game.addPlayer(playerID, player.imgNum, player.rect.center, player.lives)
+    # game.addPlayer(playerID, player.imgNum, player.rect.center, player.lives)
     return player
 
 def newRock():
@@ -120,6 +124,10 @@ def newExplosion(center):
     Expl_group.add(expl)
 
 ###############################
+def updatePlayer(playerID, lives, score, imgNum):
+    s = str(playerID) + ' ' + str(lives) + ' ' + str(score) + ' ' + str(imgNum)
+    n.send(s)
+    return s
 
 def updateRocks():
     game.clearRock()
@@ -144,6 +152,7 @@ def updateGas():
 
     for gas in gas_group:
         game.addGas(gas.rect.center)
+
 ###############################
 #顯示 文字
 def draw_text(surf, text, size, x, y):
@@ -205,17 +214,28 @@ def main():
     lineY = 0
     lineShift = GameObject.road.get_height() - HEIGHT
 
-    global n, playerID
+    global n, playerID, game
     n = Network()
     playerID = int(n.getP())
     print("You are player", playerID)
 
     while running:
         # 1.遊戲主畫面
-        if updateConnect()==False:
-            break
         if menu_display:
             main_menu()
+
+            screen.fill(BLACK)
+            draw_text(screen, '等待對手加入中...', 30, WIDTH/2, HEIGHT/2)
+            pygame.display.flip() 
+
+            n.send("ready")
+
+            if not updateConnect():
+                break
+
+            while not game.begin():
+                updateConnect()
+
             # pygame.time.wait(3000)
             menu_display = False
 
@@ -246,13 +266,10 @@ def main():
             newMoto()
             newCones()
 
-            updateRocks()
-            updateMoto()
-            updateCones()
             # 分數
             global score
         
-        
+        updateConnect()
         # 2.幀數控制 輸入偵測
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -278,8 +295,6 @@ def main():
             newRock()
             player.lives -= 1
             player.hide()
-        if hits:
-            updateRocks()
 
         # moto
         hits = pygame.sprite.spritecollide(player, moto_group, True)
@@ -289,8 +304,6 @@ def main():
             newMoto()
             player.lives -= 1
             player.hide()
-        if hits:
-            updateMoto()
 
         # cones
         hits = pygame.sprite.spritecollide(player, cones_group, False)
@@ -301,6 +314,7 @@ def main():
         # 6.檢查生命數
         if player.lives <= 0 and len(Expl_group)<=0:
             running = False
+            game.updatePlayer(playerID, player.lives, score, player.imgNum)
             game_Over_screen()
             continue
 
@@ -311,10 +325,13 @@ def main():
             score += 1000;
         if not player.hidden:
             score += 1;
+        updatePlayer(playerID, player.lives, score, player.imgNum)
 
         # 8.機率性掉落 加分物 gas
         if random.random() < 0.001:
             newgas()
+
+        # updateOnlineAll()
 
         # 9.畫面繪製
         if random.random() < 0.1:
@@ -329,8 +346,12 @@ def main():
         # 繪製精靈
         all_sprites.draw(screen)
         # 繪製分數 生命數
-        draw_text(screen, 'Score : ' + str(score), 20, 465, 100)
+        draw_text(screen, '分數 : ' + str(score), 20, 465, 100)
         draw_lives(screen, player.lives, player.image, 430, 150)
+
+        orig_img = GameObject.car_imgs[game.playerImgNum[1-playerID]]
+        draw_text(screen, '敵人分數 : ' + str(game.playerScore[1-playerID]), 20, 465, 200)
+        draw_lives(screen, game.playerLives[1-playerID], pygame.transform.scale(orig_img, (20,40)), 430, 250)
 
         pygame.display.flip() 
         pygame.display.set_caption('競速賽車 ' + str(int(clock.get_fps())) + " fps")

@@ -40,12 +40,14 @@ def threaded_client(conn, p, gameId):
                     break
                 # 接收到資料
                 else:
-                    # 重設
                     if data == "reset":
                         game.resetWent()
                     # 取得物件(玩家幾, 資料)
+                    elif data =="ready":
+                        game.playerReady(p)
                     elif data != "get":
-                        game.play(p, data)
+                        s = data.split()
+                        game.updatePlayer(int(s[0]), int(s[1]), int(s[2]), int(s[3]))
 
                     # 傳送game物件
                     conn.sendall(pickle.dumps(game))
@@ -84,7 +86,7 @@ while True:
     # 玩家1加入 開啟新遊戲
     if idCount % 2 == 1:
         games[gameId] = Game(gameId)
-        print("Creating a new game...")
+        print("等待另一名玩家中...")
     # 玩家1加入
     else:
         games[gameId].ready = True

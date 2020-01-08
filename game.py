@@ -2,14 +2,19 @@ class Game:
 	def __init__(self, id = 0):
 		self.id = id
 		self.ready = False
-		self.score = [0, 0]
 
-		self.playerID = []
-		self.playerImgNum = []
-		self.playerPOS = []
-		self.playerLives = []
-		self.playerHidden = []
-		self.move = [] #(0, 0, 0, 0)上下左右 方向鍵
+		# self.score = [0, 0]
+
+		self.playerBegin = {0:False, 1:False}
+		self.playerLives = {0:3, 1:3}
+		self.playerScore = {0:0, 1:0}
+		self.playerImgNum = {0:0, 1:5}
+		# self.playerID = []
+		# self.playerImgNum = []
+		# self.playerPOS = []
+		# self.playerLives = []
+		# self.playerHidden = []
+		# self.move = [] #(0, 0, 0, 0)上下左右 方向鍵
 
 		self.rockImgNum = []
 		self.rockAngle = []
@@ -26,14 +31,31 @@ class Game:
 
 		self.gasPOS = []
 
-	def addPlayer(self, ID, imgNum, POS, Lives = 3):
-		self.playerID = ID
-		self.playerImgNum.append(imgNum)
-		self.playerPOS.append(POS)
-		self.playerLives.append(Lives)
+	def playerReady(self, playerID):
+		self.playerBegin[playerID] = True
+
+	def begin(self):
+		go = True
+
+		for i in self.playerBegin.values():
+			go = go & i
+		return go
+
+	def connected(self):
+		return self.ready
+
+	def updatePlayer(self, playerID, lives, score, imgNum):
+		self.playerLives[playerID] = lives
+		self.playerScore[playerID] = score
+		self.playerImgNum[playerID] = imgNum
+
+	# def addPlayer(self, ID, imgNum, POS, Lives = 3):
+	# 	self.playerID = ID
+	# 	self.playerImgNum.append(imgNum)
+	# 	self.playerPOS.append(POS)
+	# 	self.playerLives.append(Lives)
 
 	def addRock(self, imgNum, POS, angle, scale):
-		print('add rock')
 		self.rockImgNum.append(imgNum)
 		self.rockPOS.append(POS)
 		self.rockAngle.append(angle)
@@ -93,6 +115,3 @@ class Game:
 
 	def clearGas(self):
 		self.gasPOS = []
-
-
-
