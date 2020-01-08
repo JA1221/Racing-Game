@@ -35,9 +35,10 @@ def playMUSIC(filename):
 ############## 物件 #################
 # 玩家
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, imgNum = 0):
         super().__init__()
-        self.image = pygame.transform.scale(player_img_01, (20,40))
+        self.imgNum = imgNum
+        self.image = pygame.transform.scale(car_imgs[imgNum], (20,40))
         # self.image = pygame.transform.scale(random.choice(car_imgs), (20,40))
         self.rect = self.image.get_rect()
         self.radius = 20
@@ -96,16 +97,14 @@ class Player(pygame.sprite.Sprite):
         self.hide_timer = pygame.time.get_ticks()
         self.rect.center = (self.rect.centerx, HEIGHT + 200)
 
-class Player2(Player):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.scale(player_img_02, (35,65))
-
 class Rock(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.img_orig = random.choice(rock_imgs)
-        self.image = pygame.transform.rotozoom(self.img_orig, random.randint(0,360), random.uniform(0.2,0.7))
+        self.imgNum = random.randrange(len(rock_imgs))
+        self.imgAngle = random.randint(0,360)
+        self.imgScale = random.uniform(0.2,0.7)
+
+        self.image = pygame.transform.rotozoom(rock_imgs[self.imgNum] , self.imgAngle, self.imgScale)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *.90 / 2)
         # 生成位置
@@ -123,7 +122,9 @@ class Rock(pygame.sprite.Sprite):
 class Cones(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.rotozoom(cones_img, random.randint(0,360), 0.4)
+        self.imgAngle = random.randint(0,360)
+
+        self.image = pygame.transform.rotozoom(cones_img, self.imgAngle, 0.4)
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width *.90 / 2)
         self.speedy = SPEED
@@ -154,8 +155,9 @@ class Cones(pygame.sprite.Sprite):
 class Moto(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.img_orig = random.choice(moto_imgs)
-        self.image = pygame.transform.scale(self.img_orig, (20,40))
+        self.imgNum = random.randrange(len(moto_imgs))
+
+        self.image = pygame.transform.scale(moto_imgs[self.imgNum], (20,40))
         self.rect = self.image.get_rect()
         # 移動變數
         self.movex_delay = 1000
