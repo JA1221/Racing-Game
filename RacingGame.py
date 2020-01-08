@@ -1,5 +1,6 @@
 #coding=utf-8
 import pygame
+from network import Network
 import random
 import GameObject
 from os import path
@@ -85,6 +86,7 @@ def game_Over_screen():
 def newPlayer():
     player = GameObject.Player()
     all_sprites.add(player)
+    game.addPlayer(playerID, player.imgNum, player.rect.center, player.lives)
     return player
 
 def newRock():
@@ -118,6 +120,31 @@ def newExplosion(center):
     Expl_group.add(expl)
 
 ###############################
+
+def updateRocks():
+    game.clearRock()
+
+    for rock in rock_group:
+        game.addRock(rock.imgNum, rock.rect.center, rock.imgAngle, rock.imgScale)
+
+def updateMoto():
+    game.clearMoto()
+
+    for moto in moto_group:
+        game.addMoto(moto.imgNum, moto.rect.center, moto.speedy, moto.speedx)
+
+def updateCones():
+    game.clearCones()
+
+    for cones in cones_group:
+        game.addCones(cones.rect.center, cones.imgAngle)
+
+def updateGas():
+    game.clearGas()
+
+    for gas in gas_group:
+        game.addGas(gas.rect.center)
+###############################
 #顯示 文字
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font("msjh.ttf", size)
@@ -143,6 +170,17 @@ def SOUND(filename):
 
 def playMUSIC(filename):
     GameObject.playMUSIC(filename)
+
+def updateConnect():
+    global game
+    # 偵測連線
+    try:
+        game = n.send("get")
+    except:
+        run = False
+        print("Couldn't get game")
+        return False
+    return True
 ###################################################
 #載入音樂
 
@@ -166,9 +204,16 @@ def main():
 
     lineY = 0
     lineShift = GameObject.road.get_height() - HEIGHT
-    
+
+    global n, playerID
+    n = Network()
+    playerID = int(n.getP())
+    print("You are player", playerID)
+
     while running:
         # 1.遊戲主畫面
+        if updateConnect()==False:
+            break
         if menu_display:
             main_menu()
             # pygame.time.wait(3000)
@@ -201,9 +246,13 @@ def main():
             newMoto()
             newCones()
 
+            updateRocks()
+            updateMoto()
+            updateCones()
             # 分數
             global score
-
+        
+        
         # 2.幀數控制 輸入偵測
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -229,6 +278,8 @@ def main():
             newRock()
             player.lives -= 1
             player.hide()
+        if hits:
+            updateRocks()
 
         # moto
         hits = pygame.sprite.spritecollide(player, moto_group, True)
@@ -238,6 +289,8 @@ def main():
             newMoto()
             player.lives -= 1
             player.hide()
+        if hits:
+            updateMoto()
 
         # cones
         hits = pygame.sprite.spritecollide(player, cones_group, False)
