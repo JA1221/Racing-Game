@@ -1,7 +1,7 @@
 # login.py
 from tkinter import *
 from tkinter import messagebox
-import sql
+import sql, SS
 import SU
 #import dashboard
 import RacingGame
@@ -59,17 +59,41 @@ class LoginWindow:
                               font='Courier 12')
         self.password.place(x=170, y=y+260)
 
-        self.button = Button(self.frame, text="Login",
+        self.button1 = Button(self.frame, text="Login",
                              font='Courier 15 bold',
                              command=self.login)
-        self.button.place(x=80, y=y+300)
+        self.button1.place(x=50, y=y+300)
 
-        self.button = Button(self.frame, text="Signup",
+        self.button2 = Button(self.frame, text="Signup",
                              font='Courier 15 bold',
                              command=self.SU)
-        self.button.place(x=260, y=y + 300)
+        self.button2.place(x=170, y=y + 300)
+
+        self.button3 = Button(self.frame, text="MyScore",
+                             font='Courier 15 bold',
+                             command=self.getScore)
+        self.button3.place(x=300, y=y + 300)
 
         self.win.mainloop()
+
+    def getScore(self):
+
+        data = (
+            self.userid.get(),
+            self.password.get()
+        )
+        # validations
+        if self.userid.get() == "":
+            messagebox.showinfo("Alert!", "Enter UserID First")
+        elif self.password.get() == "":
+            messagebox.showinfo("Alert!", "Enter Password First")
+        else:
+            res = sql.user_login(data)
+            if res:
+                tup = (self.userid.get(),)
+                SS.show(tup)
+            else:
+                messagebox.showinfo("Alert!", "Wrong username/password")
 
     def SU(self):
 

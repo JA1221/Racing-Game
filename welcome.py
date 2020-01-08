@@ -1,6 +1,6 @@
 # welcome.py
 from tkinter import *
-import login
+import login, SS
 
 class WelcomeWindow:
     #create a constructor

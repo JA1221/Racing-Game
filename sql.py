@@ -30,6 +30,13 @@ def user_last():#搜尋最後註冊者
     except:
         return False
 
+def player_score(tup):#總成績排名
+  try:
+      cursor.execute("SELECT * FROM score WHERE user_id = %s ORDER BY score.time DESC", tup)
+      return (cursor.fetchall())
+  except:
+      return False
+
 def all_score():#總成績排名
   try:
       cursor.execute("SELECT * FROM score ORDER BY score.score DESC Limit 5")
