@@ -118,6 +118,6 @@ class LoginWindow:
                 messagebox.showinfo("Message", "Login Successfully")
                 self.win.destroy()
                 # x = dashboard.DashboardWindow()
-                x = RacingGame.main()
+                x = RacingGame.main(data)
             else:
                 messagebox.showinfo("Alert!", "Wrong username/password")

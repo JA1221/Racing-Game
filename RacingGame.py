@@ -1,5 +1,5 @@
 #coding=utf-8
-import pygame
+import pygame, sql, time
 from network import Network
 import random
 import GameObject
@@ -48,8 +48,10 @@ def main_menu():
     background = pygame.transform.scale(background, (WIDTH, HEIGHT), screen)#縮放
     screen.blit(background, (0,0))
 
+    draw_text(screen, "操作方向鍵移動", 26, WIDTH/2, 220)
     draw_text(screen, "按下 [ENTER] 開始遊戲", 30, WIDTH/2, 260)
     draw_text(screen, "or [Q] 離開", 30, WIDTH/2, 300)
+    
     pygame.display.update()
 
     while True:
@@ -66,7 +68,7 @@ def main_menu():
     pygame.mixer.music.stop()  
 
 # 遊戲結束畫面
-def game_Over_screen():
+def game_Over_screen(tup):
     global screen
 
     screen.blit(GameObject.background, (0,0))
@@ -77,7 +79,10 @@ def game_Over_screen():
     draw_text(screen, s, 30, WIDTH/2, HEIGHT/2)
     draw_text(screen, "遊戲分數：" + str(score), 30, WIDTH/2, HEIGHT/2 + 40)
     pygame.display.update()
-
+    end_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    tup = (tup[0], str(score), end_time)
+    sql.insert_score(tup)
+    
     while True:
         event = pygame.event.poll() # 取一個事件
         if event.type == pygame.KEYDOWN or event.type == pygame.QUIT:
@@ -206,7 +211,7 @@ slip = SOUND('slip.ogg')
 ###############################
 ## Game loop
 
-def main():
+def main(tup):
     initGame()
     running = True
     menu_display = True
@@ -315,7 +320,7 @@ def main():
         if player.lives <= 0 and len(Expl_group)<=0:
             running = False
             game.updatePlayer(playerID, player.lives, score, player.imgNum)
-            game_Over_screen()
+            game_Over_screen(tup)
             continue
 
         # 7.加分計算
